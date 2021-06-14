@@ -33,7 +33,7 @@ dependencies:
   shared_preferences: ^2.0.6
   location: ^4.2.0
   barcode_scan: ^3.0.1
-  progress_dialog: ^1.2.4
+  ndialog: ^4.1.0
   animate_do: ^2.0.0
   device_info: ^2.0.2
 

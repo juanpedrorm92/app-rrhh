@@ -1,6 +1,12 @@
+import 'package:flutter/material.dart';
+import 'package:ndialog/ndialog.dart';
 import 'package:app_rrhh/src/bloc/login_bloc.dart';
 import 'package:app_rrhh/src/bloc/provider.dart';
-import 'package:flutter/material.dart';
+import 'package:app_rrhh/src/pages/home_page.dart';
+import 'package:app_rrhh/src/preferencias_usuario/preferencias_usuario.dart';
+import 'package:app_rrhh/src/providers/usuario_provider.dart';
+import 'package:app_rrhh/src/utils/alertas.dart';
+import 'package:app_rrhh/src/utils/const.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({Key? key}) : super(key: key);
@@ -12,6 +18,12 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+
+  //instancias 
+  final usuarioProvider = new UsuarioProvider();
+  final preferenciasUsuario = new PreferenciasUsuario();
+  //variables globales 
+  ProgressDialog? _progressDialog;
 
   Color primary   = Color.fromRGBO(0, 8, 170, 1);
   Color secondary = Color.fromRGBO(255, 45, 0, 1);
@@ -133,11 +145,11 @@ Widget _crearInputRut(LoginBloc bloc){
         child: TextField(
           keyboardType: TextInputType.multiline,
           decoration: InputDecoration(
-            icon: Icon(Icons.supervised_user_circle, color: this.primary),
+            icon: Icon(Icons.supervised_user_circle, color: Colors.blue),
             hintText: '12345678-0',
             labelText: 'Rut',
             counterText: snapshot.data,
-              errorText: snapshot.hasData ? "":snapshot.error.toString()
+              errorText: snapshot.hasError ? snapshot.error.toString():""
           ),
           onChanged: bloc.changedRut,
         ),
@@ -158,10 +170,10 @@ Widget _crearInputPassword(LoginBloc bloc){
         child: TextField(
           obscureText: true,
           decoration: InputDecoration(
-            icon: Icon(Icons.vpn_key, color: this.primary,),
+            icon: Icon(Icons.vpn_key, color: Colors.blue,),
             labelText: 'Contraseña',
             counterText: snapshot.data,
-            errorText: snapshot.hasData ? "":snapshot.error.toString()
+            errorText: snapshot.hasError ? snapshot.error.toString():""
           ),
           onChanged: bloc.changedPassword,
         ),
@@ -185,7 +197,7 @@ Widget _crearBotonIngresar(LoginBloc bloc){
               borderRadius: BorderRadius.circular(5.0)
             )
           ),
-          backgroundColor: MaterialStateProperty.all<Color>(this.primary)
+          backgroundColor: MaterialStateProperty.all<Color>(Colors.blue)
           
         ),
         onPressed: snapshot.hasData ? ()=> _login(bloc,context): null
@@ -195,8 +207,25 @@ Widget _crearBotonIngresar(LoginBloc bloc){
  }
  
   
-_login(LoginBloc bloc, BuildContext context){
-  print("hola mundo");
+_login(LoginBloc bloc, BuildContext context) async{
+  
+  _progressDialog = ProgressDialog(context, title: Text("Cargando") ,message: Text("Favor espere..."),dismissable: false);
+  _progressDialog!.show();
+  //mientras se muestra el cuadro de dialogo consulto por el metodo de login 
+  Map respLogin = await  usuarioProvider.login(bloc.rut, bloc.password);
+
+   if(respLogin['error']){
+     _progressDialog!.dismiss();
+    mostrarAlerta(context, respLogin['mensaje'],'Informacion Incorrecta',Consts.incorrecto);
+  }else{
+
+     _progressDialog!.dismiss();
+    //almaceno en el storage el token y rut del usuario
+    preferenciasUsuario.token = respLogin['token'].toString();
+    preferenciasUsuario.usuRut = respLogin['usuRut'].toString();
+    //una vez que este todo ok, paso a la pantalla del home
+    Navigator.pushReplacementNamed(context, HomePage.routeName);
+  } 
 }
 
 

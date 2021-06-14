@@ -10,10 +10,19 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
+  final scaffoldKey = new GlobalKey<ScaffoldState>();
+
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-       child: null,
+    return Scaffold(
+       key: scaffoldKey,
+       body: Container(
+         child: Center(child:Text("Hola Mundo")),
+       )
     );
   }
+
+
 }

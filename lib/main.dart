@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
       title: 'Subdireccion de Gestion y Desarrollo de las personas',
       debugShowCheckedModeBanner: false,
-      initialRoute: LoginPage.routeName,
+      initialRoute: HomePage.routeName,
       routes:{
         LoginPage.routeName: (BuildContext context) => LoginPage(),
         HomePage.routeName : (BuildContext context) => HomePage()

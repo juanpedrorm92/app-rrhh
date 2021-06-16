@@ -93,7 +93,6 @@ class _LoginPageState extends State<LoginPage> {
             height: 180.0,
           ),
         ),
-
         Container(
           width: size.width * 0.85,
           // cpn respecto al ancho, este va a ser dinamico ya que va a depender de los alementos internos 
@@ -126,12 +125,9 @@ class _LoginPageState extends State<LoginPage> {
             ],
           ),
         )
-
       ],
     ),
-
   );
-
 }
 
 
@@ -197,8 +193,7 @@ Widget _crearBotonIngresar(LoginBloc bloc){
               borderRadius: BorderRadius.circular(5.0)
             )
           ),
-          backgroundColor: MaterialStateProperty.all<Color>(Colors.blue)
-          
+          backgroundColor: MaterialStateProperty.all<Color>(Colors.blue)    
         ),
         onPressed: snapshot.hasData ? ()=> _login(bloc,context): null
       );

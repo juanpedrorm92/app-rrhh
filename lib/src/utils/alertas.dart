@@ -19,6 +19,7 @@ mostrarAlerta(BuildContext context, String mensaje, String titulo, String pathIm
     );
     if(guardando){   
       ScaffoldMessenger.of(context).showSnackBar(snackbar);
+     
   }else{
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
   }

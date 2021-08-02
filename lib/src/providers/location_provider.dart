@@ -1,5 +1,3 @@
-
-import 'package:app_rrhh/src/model/userLocation_model.dart';
 import 'package:location/location.dart';
 
 class LocationProvider{
@@ -7,14 +5,10 @@ class LocationProvider{
 //Instancias
 Location location = new Location();
 
-//Variables globales
-UserLocation? _currentLocation;
-
-  getLocation() async{
+   permisosUbicacion() async{
 
     bool _serviceEnabled;
     PermissionStatus _permissionGranted;
-    LocationData locationData;
 
     _serviceEnabled = await location.serviceEnabled();
     if(!_serviceEnabled){
@@ -31,23 +25,6 @@ UserLocation? _currentLocation;
         return;
       }
     }
-
-    try{
-
-      locationData = await location.getLocation();
-      _currentLocation = UserLocation(
-        latitude:  locationData.latitude,
-        longitude: locationData.longitude
-      );
-
-    } on Exception catch(e){
-      _currentLocation = UserLocation(
-        latitude: 0,
-        longitude: 0
-      );
-    }
-
-    return _currentLocation;
   }
 
   }

@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:app_rrhh/src/utils/const.dart';
 import 'package:flutter/material.dart';
 
@@ -14,13 +15,15 @@ class CustomDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(Consts.padding)
-        ),
-        elevation: 0.0,
-        backgroundColor: Colors.transparent,
-        child: dialogContent(context),
+    return ElasticIn(
+      child: Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(Consts.padding)
+          ),
+          elevation: 0.0,
+          backgroundColor: Colors.transparent,
+          child: dialogContent(context),
+      ),
     );
   }
 

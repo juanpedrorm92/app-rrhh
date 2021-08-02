@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:animate_do/animate_do.dart';
+import 'package:barcode_scan2/barcode_scan2.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:app_rrhh/src/model/eventos_model.dart';
 import 'package:app_rrhh/src/providers/eventos_provider.dart';
 import 'package:app_rrhh/src/utils/alertas.dart';
 import 'package:app_rrhh/src/utils/const.dart';
-import 'package:barcode_scan/barcode_scan.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
@@ -25,17 +25,18 @@ class _HomePageState extends State<HomePage> {
   final scaffoldKey     = new GlobalKey<ScaffoldState>();
 
 //Variables Globales
-  String _mesAppBar = 'Null';
-  bool _guardando = false;
+  String _mesAppBar         = 'Null';
+  final String _tipoEntrada = 'Entrada';
+  final String _tipoSalida  = 'Salida';
+  bool _guardando           = false;
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
        key: scaffoldKey,
-       body: Container(
-         child: Center(child:Text("Hola Mundo")),
-       )
+       body: _crearListado(),
+       floatingActionButton: _crearBotones(context),
     );
   }
 
@@ -140,7 +141,8 @@ Future scann(BuildContext context,String tipoMarca) async {
 
     try {
       var scanCod = await BarcodeScanner.scan();
-      _submit(context, tipoMarca, scanCod.toString());
+    
+      _submit(context, tipoMarca, scanCod.rawContent.toString());
     }on PlatformException catch (e){
       if (e.code == BarcodeScanner.cameraAccessDenied) {
         mostrarAlerta(context, "Favor, verificar permisos de Camara!",
@@ -157,20 +159,50 @@ Future scann(BuildContext context,String tipoMarca) async {
     }
   }
 
+  _crearBotones(BuildContext context){
+
+   return Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                FloatingActionButton(
+                  heroTag: "btn1",
+                    child: Icon(Icons.input),
+                    backgroundColor: Colors.green,
+                   onPressed: ()=>scann(context,_tipoEntrada)
+                
+                ),
+                SizedBox(height: 5.0,),
+                Text('Entrada'),
+                SizedBox(height: 10.0,),
+                FloatingActionButton(
+                  heroTag: "btn2",
+                    child: Icon(Icons.directions_walk),
+                    backgroundColor: Colors.red,
+                   onPressed: () => scann(context, _tipoSalida),
+                ),
+                SizedBox(height: 5.0,),
+                Text('Salida'),
+              ],
+            );
+  }
+
 
   _submit(BuildContext context,String tipoMarca, String identificador) async {
 
-      mostrarSnackBar(context,"Guardando registro..", _guardando);
+      //muestro mnesaje que registro se esta guardando
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Guardando....')));
 
       Map info = await eventosProvider.crearEvento(tipoMarca, identificador);
 
       if (info['error']) {
+
         mostrarAlerta(
             context,
             info['mensaje'],
             'Ups, hubo un inconveniente. Intentalo nuevamente',
             Consts.incorrecto);
-        mostrarSnackBar(context,"", _guardando = false);
+
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
       } else {
         mostrarAlerta(
             context, info['mensaje'], 'Marcaje Guardado', Consts.correcto);

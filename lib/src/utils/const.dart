@@ -6,4 +6,6 @@ class Consts{
 
   static const String correcto = "correcto.png";
   static const String incorrecto = "incorrecto.png";
+
+  static String initialRoute = "";
 }

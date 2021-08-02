@@ -25,8 +25,8 @@ class _LoginPageState extends State<LoginPage> {
   //variables globales 
   ProgressDialog? _progressDialog;
 
-  Color primary   = Color.fromRGBO(0, 8, 170, 1);
-  Color secondary = Color.fromRGBO(255, 45, 0, 1);
+  Color primary   = Color.fromRGBO(0, 111, 179, 1);
+  Color secondary = Color.fromRGBO(254, 101, 101, 1);
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +141,7 @@ Widget _crearInputRut(LoginBloc bloc){
         child: TextField(
           keyboardType: TextInputType.multiline,
           decoration: InputDecoration(
-            icon: Icon(Icons.supervised_user_circle, color: Colors.blue),
+            icon: Icon(Icons.supervised_user_circle, color: this.primary),
             hintText: '12345678-0',
             labelText: 'Rut',
             counterText: snapshot.data,
@@ -166,7 +166,7 @@ Widget _crearInputPassword(LoginBloc bloc){
         child: TextField(
           obscureText: true,
           decoration: InputDecoration(
-            icon: Icon(Icons.vpn_key, color: Colors.blue,),
+            icon: Icon(Icons.vpn_key, color: this.primary,),
             labelText: 'Contraseña',
             counterText: snapshot.data,
             errorText: snapshot.hasError ? snapshot.error.toString():""
@@ -193,7 +193,7 @@ Widget _crearBotonIngresar(LoginBloc bloc){
               borderRadius: BorderRadius.circular(5.0)
             )
           ),
-          backgroundColor: MaterialStateProperty.all<Color>(Colors.blue)    
+          backgroundColor: MaterialStateProperty.all<Color>(this.primary)    
         ),
         onPressed: snapshot.hasData ? ()=> _login(bloc,context): null
       );

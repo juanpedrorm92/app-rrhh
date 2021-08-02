@@ -5,7 +5,7 @@ import 'package:app_rrhh/src/utils/helpers.dart';
 class UsuarioProvider{
 
 
-  final _urlApiLogin = Uri.parse('https://rrhh-dev.ssasur.cl/api/auth/login');
+  final _urlApiLogin = Uri.parse('https://rrhh.ssasur.cl/api/auth/login');
   
   Future<Map<String, dynamic>> login(String rut, String password) async{
     
@@ -23,7 +23,7 @@ class UsuarioProvider{
       return {'error': true, 'mensaje': decodedResp['message']};
     }else{
       return {'error': false, 'token': decodedResp['access_token'],'usuRut':decodedResp['rut']};
-    }
+    } 
 
   }
 

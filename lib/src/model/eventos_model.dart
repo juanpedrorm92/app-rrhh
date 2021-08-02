@@ -5,8 +5,8 @@ EventoModel eventoModelFromJson(String str) => EventoModel.fromJson(json.decode(
 String eventoModelToJson(EventoModel data) => json.encode(data.toJson());
 
 class EventoModel {
-    String establecimiento;
-    String ubicacion;
+    String establecimiento = "";
+    String ubicacion = "";
     String tipoMarcaje;
     String fecha;
     String mes;

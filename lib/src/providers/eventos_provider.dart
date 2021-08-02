@@ -2,30 +2,28 @@
 
 import 'dart:convert';
 import 'dart:io';
-
-import 'package:app_rrhh/src/model/userLocation_model.dart';
 import 'package:app_rrhh/src/providers/location_provider.dart';
 import 'package:http/http.dart' as http; 
 import 'package:app_rrhh/src/model/eventos_model.dart';
 import 'package:app_rrhh/src/preferencias_usuario/preferencias_usuario.dart';
-import 'package:app_rrhh/src/utils/helpers.dart';
+import 'package:location/location.dart';
 
 
 class EventosProvider{
 //Variables globales
-  final Uri _urlEventos = Uri.parse('https://rrhh-dev.ssasur.cl/api/auth/events');
-  final Uri _urlEventosRegistro = Uri.parse('https://rrhh-dev.ssasur.cl/api/auth/events/create');
+  final Uri _urlEventos = Uri.parse('https://rrhh.ssasur.cl/api/auth/events');
+  final Uri _urlEventosRegistro = Uri.parse('https://rrhh.ssasur.cl/api/auth/events/create');
+  LocationData? locationData;
 
-  UserLocation? userLocation;
-  
 //Instancias
-  final  prefUsuario = new PreferenciasUsuario();
-  final  location    = new LocationProvider();
+  final  prefUsuario         = new PreferenciasUsuario();
+  final  locationProvider    = new LocationProvider();
+  Location location          = new Location();
   
 
   Future <List<EventoModel>> listarEventos() async{
     
-    final _rutLimpio     = limpiarRut(prefUsuario.usuRut);
+    final _rutLimpio     = prefUsuario.usuRut.replaceAll('-', '').replaceAll('.', '');
     final _rutFormateado = _rutLimpio.substring(0, _rutLimpio.length - 1);
     final _body          = {"rut":_rutFormateado};
     final _headers       = {"x-Requested-With":"XMLHttpRequest", "Authorization": "Bearer "+prefUsuario.token};
@@ -46,15 +44,23 @@ class EventosProvider{
     return eventos;
   }
 
-   crearEvento(String tipoMarca, String identificador) async{
+  Future <Map<String, dynamic>> crearEvento(String tipoMarca, String identificador) async{
 
-    userLocation         = location.getLocation();
-    final _rutLimpio     = limpiarRut(prefUsuario.usuRut);
+    //verfico los permisos de ubicacion
+      locationProvider.permisosUbicacion();
+    //luego obtengo las coordenadas
+    try{
+      locationData   = await location.getLocation();
+    }on Exception catch(e){
+      return {'error':true, 'mensaje': 'Favor, compueba los permisos de ubicación'};
+    }
+    final _rutLimpio     = prefUsuario.usuRut.replaceAll('-', '').replaceAll('.', '');
     final _rutFormateado = _rutLimpio.substring(0, _rutLimpio.length - 1);
     final _headers       = {"x-Requested-With":"XMLHttpRequest", "Authorization": "Bearer "+prefUsuario.token};
-    final _body          = {"type":tipoMarca, "lat":userLocation?.latitude.toString(),"lng":userLocation?.longitude.toString(), "rut":_rutFormateado.toString(), "identifier_id":identificador.toString()};
-
-
+    final _body          = {"type":tipoMarca, "lat":locationData?.latitude.toString(),"lng":locationData?.longitude.toString(), "rut":_rutFormateado.toString(), "identifier_id":identificador.toString()};
+   
+    Map<String, dynamic> decodedResp = {'error':true, 'mensaje':'Error al obtener los eventos'};
+    
     //compruebo si hay internet
 
     try{
@@ -65,20 +71,19 @@ class EventosProvider{
         //conectado
         final respApi = await http.post(_urlEventosRegistro, headers: _headers, body: _body);
 
-        Map<String, dynamic> decodedResp = json.decode(respApi.body);
+         decodedResp = json.decode(respApi.body);
 
         if(decodedResp['error']){
-          return {'error':true, 'mensaje':decodedResp['message']};
+           decodedResp = {'error':true, 'mensaje':decodedResp['message']};
         }else{
-          return {'error':false, 'mensaje': decodedResp['message']};
+          decodedResp = {'error':false, 'mensaje': decodedResp['message']};
         }
       }
     }on SocketException catch(_){
       return {'error':true, 'mensaje': 'Favor, compueba la conexión de tus datos móviles'};
     }
 
-   
-
+    return decodedResp;
   }
 
 

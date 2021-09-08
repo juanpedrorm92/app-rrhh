@@ -43,6 +43,13 @@ class PreferenciasUsuario {
     _prefs!.setString('usuRut', value);
   }
 
+  int get intentosSesion{
+    return _prefs!.getInt('intentosSesion') ?? 0;
+  }
+
+  set intentosSesion( int value){
+    _prefs!.setInt('intentosSesion', value);
+  }
 
   // GET y SET de la última página
   String get ultimaPagina {

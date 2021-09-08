@@ -1,4 +1,7 @@
+
+import 'package:app_rrhh/src/pages/recaptchav2_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_recaptcha_v2/flutter_recaptcha_v2.dart';
 import 'package:ndialog/ndialog.dart';
 import 'package:app_rrhh/src/bloc/login_bloc.dart';
 import 'package:app_rrhh/src/bloc/provider.dart';
@@ -13,28 +16,35 @@ class LoginPage extends StatefulWidget {
 
   static String routeName = "login";
 
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-
+  
   //instancias 
+  RecaptchaV2Controller recaptchaV2Controller = RecaptchaV2Controller();
   final usuarioProvider = new UsuarioProvider();
   final preferenciasUsuario = new PreferenciasUsuario();
+  
   //variables globales 
   ProgressDialog? _progressDialog;
-
   Color primary   = Color.fromRGBO(0, 111, 179, 1);
   Color secondary = Color.fromRGBO(254, 101, 101, 1);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Center(child: Text("Servicio de Salud Araucania Sur",style: TextStyle(color: Colors.white, fontSize:20.0 ))),
+        backgroundColor: primary,
+      ),
        body: Stack(
          children: [
            _crearFondo(context),
-           _loginForm(context)
+           _loginForm(context),
+           _captcha(),
          ],
        ),
     );
@@ -70,7 +80,7 @@ class _LoginPageState extends State<LoginPage> {
               Icon(Icons.person_pin_circle, color: Colors.white, size: 100.0,),
               //el double infinity me ocpara todo el ancho y por defecto lo centrara
               SizedBox(height: 10.0, width: double.infinity),
-              Text("Servicio de Salud Araucania Sur", style: TextStyle(color: Colors.white, fontSize:20.0 ),)
+              //Text("Servicio de Salud Araucania Sur", style: TextStyle(color: Colors.white, fontSize:20.0 ),)
             ],
           ),
         )
@@ -129,7 +139,6 @@ class _LoginPageState extends State<LoginPage> {
     ),
   );
 }
-
 
 Widget _crearInputRut(LoginBloc bloc){
 
@@ -200,6 +209,30 @@ Widget _crearBotonIngresar(LoginBloc bloc){
     }
   );
  }
+
+ Widget _captcha(){
+
+   return  RecaptchaV2(
+            apiKey: "6LcsgM4bAAAAAJ2iGFLJUDqiBjtdmNtUmh3U1-iZ",
+            apiSecret: "6LcsgM4bAAAAABp24DiYOOA5TbDeKI5cA4xm6yhn",
+            controller: recaptchaV2Controller,
+            onVerifiedError: (err){
+              print(err);
+            },
+            onVerifiedSuccessfully: (success) {
+              setState(() {
+                if (success) {
+                  //verifyResult = "You've been verified successfully.";
+                  preferenciasUsuario.intentosSesion = 0;
+                  recaptchaV2Controller.hide();
+                } else {
+                  verifyResult = "Failed to verify.";
+                }
+              });
+            },
+          );
+ }
+
  
   
 _login(LoginBloc bloc, BuildContext context) async{
@@ -207,21 +240,30 @@ _login(LoginBloc bloc, BuildContext context) async{
   _progressDialog = ProgressDialog(context, title: Text("Cargando") ,message: Text("Favor espere..."),dismissable: false);
   _progressDialog!.show();
   //mientras se muestra el cuadro de dialogo consulto por el metodo de login 
-  Map respLogin = await  usuarioProvider.login(bloc.rut, bloc.password);
+  if(preferenciasUsuario.intentosSesion > 2){
+    _progressDialog!.dismiss();
+    //Navigator.pushReplacementNamed(context, ReCaptchaPage.routeName);
+    recaptchaV2Controller.show();
 
-   if(respLogin['error']){
-     _progressDialog!.dismiss();
-    mostrarAlerta(context, respLogin['mensaje'],'Informacion Incorrecta',Consts.incorrecto);
   }else{
 
-     _progressDialog!.dismiss();
-    //almaceno en el storage el token y rut del usuario
-    preferenciasUsuario.token = respLogin['token'].toString();
-    preferenciasUsuario.usuRut = respLogin['usuRut'].toString();
-    //una vez que este todo ok, paso a la pantalla del home
-    Navigator.pushReplacementNamed(context, HomePage.routeName);
-  } 
-}
+      Map respLogin = await  usuarioProvider.login(bloc.rut, bloc.password);
+
+      if(respLogin['error']){
+        _progressDialog!.dismiss();
+        mostrarAlerta(context, respLogin['mensaje'],'Informacion Incorrecta',Consts.incorrecto);
+      }else{
+
+        _progressDialog!.dismiss();
+        //almaceno en el storage el token y rut del usuario
+        preferenciasUsuario.token = respLogin['token'].toString();
+        preferenciasUsuario.usuRut = respLogin['usuRut'].toString();
+        //una vez que este todo ok, paso a la pantalla del home
+        Navigator.pushReplacementNamed(context, HomePage.routeName);
+        //seteo la variable del conteo
+      } 
+    }
+  }
 
 
 }

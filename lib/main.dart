@@ -1,6 +1,8 @@
+// @dart=2.9
 import 'package:app_rrhh/src/bloc/provider.dart';
 import 'package:app_rrhh/src/pages/home_page.dart';
 import 'package:app_rrhh/src/pages/login_page.dart';
+import 'package:app_rrhh/src/pages/recaptchav2_page.dart';
 import 'package:app_rrhh/src/preferencias_usuario/preferencias_usuario.dart';
 import 'package:flutter/material.dart';
 import 'package:app_rrhh/src/utils/const.dart';
@@ -31,7 +33,9 @@ class MyApp extends StatelessWidget {
       initialRoute: Consts.initialRoute,
       routes:{
         LoginPage.routeName: (BuildContext context) => LoginPage(),
-        HomePage.routeName : (BuildContext context) => HomePage()
+        HomePage.routeName : (BuildContext context) => HomePage(),
+        ReCaptchaPage.routeName: (BuildContext context) => ReCaptchaPage()
+        
       },)
     );
   }

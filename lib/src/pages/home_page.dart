@@ -141,8 +141,11 @@ Future scann(BuildContext context,String tipoMarca) async {
 
     try {
       var scanCod = await BarcodeScanner.scan();
-    
-      _submit(context, tipoMarca, scanCod.rawContent.toString());
+        //me aseguro que el scancod venga con contenido
+        if(scanCod.rawContent != ""){
+          _submit(context, tipoMarca, scanCod.rawContent.toString());
+        }
+
     }on PlatformException catch (e){
       if (e.code == BarcodeScanner.cameraAccessDenied) {
         mostrarAlerta(context, "Favor, verificar permisos de Camara!",
